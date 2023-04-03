@@ -1,4 +1,24 @@
 {
+  "name": "rpg-combat-reproduction",
+  "version": "1.0.9",
+  "description": "Reproduction of RPG(Role Playing Games) battle screen on the command line",
+  "main": "rpg-combat-reproduction",
+  "bin": {
+    "rpg-combat-reproduction": "rpg-combat-reproduction.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sochi419/Reproduction-of-RPG-combat"
+  },
+  "keywords": [],
+  "author": "sochi419",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.35.0"
+  },
   "dependencies": {
     "enquirer": "^2.3.6"
   }
