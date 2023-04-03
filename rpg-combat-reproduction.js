@@ -10,7 +10,7 @@ class Action {
     let baikiruto = new Baikiruto();
     let herb = new Herb();
 
-    console.log(`スライムが現れた!!`);
+    console.log(`${slime.name}が現れた!!`);
     console.log(`_____________________`);
     console.log(`HP:${hero.health}   |   MP:${hero.magicPower}`);
     console.log(`---------------------`);
@@ -42,7 +42,7 @@ class Action {
 
         if (answer.command == "たたかう") {
           console.log(
-            `スライムに攻撃! スライムに${hero.attackPower}のダメージ!`
+            `${slime.name}に攻撃! ${slime.name}に${hero.attackPower}のダメージ!`
           );
           hero.attack(slime);
         }
@@ -51,20 +51,20 @@ class Action {
           const answer = await Enquirer.prompt(magic);
           if (answer.magics == "メラ") {
             if (hero.magicPower >= mera.necessaryPower) {
-              console.log(`メラを唱えた! スライムに${mera.damage}のダメージ!`);
+              mera.outputMessage1(hero, slime);
               mera.attack(slime);
               mera.consumeMagicPower(hero);
             } else {
-              console.log(`メラを唱えた! しかし、MPが足りなかった!`);
+              mera.outputMessage2(hero);
             }
           }
           if (answer.magics == "バイキルト") {
             if (hero.magicPower >= baikiruto.necessaryPower) {
-              console.log(`バイキルトを唱えた! 攻撃力が上がった!`);
+              baikiruto.outputMessage1(hero);
               baikiruto.upAttackPower(hero);
               baikiruto.consumeMagicPower(hero);
             } else {
-              console.log(`バイキルトを唱えた! しかし、MPが足りなかった!`);
+              baikiruto.outputMessage2(hero);
             }
           }
           if (answer.magics == "もどる") {
@@ -76,7 +76,7 @@ class Action {
           const answer = await Enquirer.prompt(belongings);
           if (answer.tools == "やくそう") {
             if (herb.remaining >= 1) {
-              console.log(`${answer.tools}を使った! HPが20回復した!`);
+              herb.outputMessage1();
               herb.healUser(hero);
               herb.consumeHerb(herb);
               console.log(`__________________________________________`);
@@ -85,7 +85,7 @@ class Action {
               );
               console.log(`------------------------------------------`);
             } else {
-              console.log(`やくそうは残っていない!`);
+              herb.outputMessage2();
             }
           }
           if (answer.tools == "もどる") {
@@ -99,7 +99,7 @@ class Action {
         }
 
         if (slime.health <= 0) {
-          console.log("スライムを倒した!");
+          console.log(`${slime.name}を倒した!`);
           break;
         }
 
@@ -107,18 +107,16 @@ class Action {
         let random = Math.floor(Math.random() * 100);
         if (random >= 25) {
           console.log(
-            `スライムのこうげき! ${slime.attackPower}のダメージを受けた!`
+            `${slime.name}のこうげき! ${slime.attackPower}のダメージを受けた!`
           );
           slime.attack(hero);
         } else {
           if (slime.magicPower >= mera.necessaryPower) {
-            console.log(
-              `スライムはメラを唱えた! ${mera.damage}のダメージを受けた!`
-            );
+            mera.outputMessage1(slime, hero);
             mera.attack(hero);
             mera.consumeMagicPower(slime);
           } else {
-            console.log(`スライムはメラを唱えた! しかし、MPが足りなかった!`);
+            mera.outputMessage2(slime);
           }
         }
 
@@ -137,6 +135,7 @@ class Action {
 
 class Hero {
   constructor() {
+    this.name = "勇者";
     this.health = 50;
     this.attackPower = 5;
     this.magicPower = 10;
@@ -149,6 +148,7 @@ class Hero {
 
 class Slime {
   constructor() {
+    this.name = "スライム";
     this.health = 70;
     this.attackPower = 5;
     this.magicPower = 10;
@@ -170,6 +170,14 @@ class Mera {
   consumeMagicPower(user) {
     user.magicPower = user.magicPower - this.necessaryPower;
   }
+  outputMessage1(user1, user2) {
+    console.log(
+      `${user1.name}はメラを唱えた! ${user2.name}に${this.damage}のダメージ!`
+    );
+  }
+  outputMessage2(user) {
+    console.log(`${user.name}はメラを唱えた! しかし、MPが足りなかった!`);
+  }
 }
 
 class Baikiruto {
@@ -185,10 +193,19 @@ class Baikiruto {
   consumeMagicPower(user) {
     user.magicPower = user.magicPower - this.necessaryPower;
   }
+
+  outputMessage1(user) {
+    console.log(`${user.name}はバイキルトを唱えた! 攻撃力が上がった!`);
+  }
+
+  outputMessage2(user) {
+    console.log(`${user.name}はバイキルトを唱えた! しかし、MPが足りなかった!`);
+  }
 }
 
 class Herb {
   constructor() {
+    this.name = "薬草";
     this.healingPower = 20;
     this.remaining = 2;
   }
@@ -199,6 +216,14 @@ class Herb {
 
   consumeHerb(subject) {
     subject.remaining = subject.remaining - 1;
+  }
+
+  outputMessage1() {
+    console.log(`${this.name}を使った! HPが20回復した!`);
+  }
+
+  outputMessage2() {
+    console.log(`${this.name}は残っていない!`);
   }
 }
 
