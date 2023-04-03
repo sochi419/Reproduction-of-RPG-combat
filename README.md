@@ -15,7 +15,7 @@ npm install -g rpg-combat-reproduction
 Execute the following command.
 
 ```
-npx rpg-combat-reproduction
+rpg-combat-reproduction
 ```
 
 Like in an RPG battle, you can fight enemies by selecting the options displayed.

@@ -1,6 +1,6 @@
 {
   "name": "rpg-combat-reproduction",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Reproduction of RPG(Role Playing Games) battle screen on the command line",
   "main": "rpg-combat-reproduction",
   "bin": {
