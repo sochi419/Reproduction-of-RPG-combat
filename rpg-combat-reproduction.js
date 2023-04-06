@@ -2,48 +2,34 @@
 
 const Enquirer = require("enquirer");
 
-class Action {
-  selectAction() {
-    let hero = new Hero();
-    let slime = new Slime();
-    let mera = new Mera();
-    let baikiruto = new Baikiruto();
-    let herb = new Herb();
+class Battle {
+  startBattle() {
+    this.outputStartMessage();
+    new Action().selectAction();
+  }
 
+  outputStartMessage() {
     console.log(`${slime.name}が現れた!!`);
     console.log(`_____________________`);
     console.log(`HP:${hero.health}   |   MP:${hero.magicPower}`);
     console.log(`---------------------`);
+  }
 
+  outputRemaingPower() {
+    console.log(`_____________________`);
+    console.log(`HP:${hero.health}   |   MP:${hero.magicPower}`);
+    console.log(`---------------------`);
+  }
+}
+
+class Action {
+  selectAction() {
     (async () => {
-      const action = {
-        type: "select",
-        name: "command",
-        message: "どうする？",
-        choices: ["たたかう", "まほう", "どうぐ", "にげる"],
-      };
-
-      const magic = {
-        type: "select",
-        name: "magics",
-        message: "どの魔法を使う?",
-        choices: ["メラ", "バイキルト", "もどる"],
-      };
-
-      const belongings = {
-        type: "select",
-        name: "tools",
-        message: "使う道具は?",
-        choices: ["やくそう", "もどる"],
-      };
-
       for (; slime.health >= 0 && hero.health >= 0; ) {
         const answer = await Enquirer.prompt(action);
 
         if (answer.command == "たたかう") {
-          console.log(
-            `${slime.name}に攻撃! ${slime.name}に${hero.attackPower}のダメージ!`
-          );
+          attack.outputMessage(slime, hero);
           hero.attack(slime);
         }
 
@@ -79,11 +65,7 @@ class Action {
               herb.outputMessage1();
               herb.healUser(hero);
               herb.consumeHerb(herb);
-              console.log(`__________________________________________`);
-              console.log(
-                `HP:${hero.health}   |   MP:${hero.magicPower}   |    やくそう残り:${herb.remaining}`
-              );
-              console.log(`------------------------------------------`);
+              herb.outputMessage3();
             } else {
               herb.outputMessage2();
             }
@@ -95,38 +77,20 @@ class Action {
 
         if (answer.command == "にげる") {
           console.log(`にげだした!!`);
-          break;
+          return false;
         }
 
         if (slime.health <= 0) {
           console.log(`${slime.name}を倒した!`);
-          break;
+          return false;
         }
 
-        // 敵は75%の確率で通常攻撃,25%の確率で魔法を使用する処理。
-        let random = Math.floor(Math.random() * 100);
-        if (random >= 25) {
-          console.log(
-            `${slime.name}のこうげき! ${slime.attackPower}のダメージを受けた!`
-          );
-          slime.attack(hero);
-        } else {
-          if (slime.magicPower >= mera.necessaryPower) {
-            mera.outputMessage1(slime, hero);
-            mera.attack(hero);
-            mera.consumeMagicPower(slime);
-          } else {
-            mera.outputMessage2(slime);
-          }
-        }
-
-        console.log(`_____________________`);
-        console.log(`HP:${hero.health}   |   MP:${hero.magicPower}`);
-        console.log(`---------------------`);
+        slimeAction();
+        new Battle().outputRemaingPower();
 
         if (hero.health <= 0) {
           console.log("ゲームオーバー!");
-          break;
+          return false;
         }
       }
     })();
@@ -156,6 +120,14 @@ class Slime {
 
   attack(subject) {
     subject.health = subject.health - this.attackPower;
+  }
+}
+
+class Attack {
+  outputMessage(user1, user2) {
+    console.log(
+      `${user2.name}は${user1.name}に攻撃! ${user1.name}に${user2.attackPower}のダメージ!`
+    );
   }
 }
 
@@ -219,12 +191,65 @@ class Herb {
   }
 
   outputMessage1() {
-    console.log(`${this.name}を使った! HPが20回復した!`);
+    console.log(`${this.name}を使った! HPが${this.healingPower}回復した!`);
   }
 
   outputMessage2() {
     console.log(`${this.name}は残っていない!`);
   }
+
+  outputMessage3() {
+    console.log(`__________________________________________`);
+    console.log(
+      `HP:${hero.health}   |   MP:${hero.magicPower}   |    やくそう残り:${herb.remaining}`
+    );
+    console.log(`------------------------------------------`);
+  }
 }
 
-new Action().selectAction();
+const hero = new Hero();
+const slime = new Slime();
+const attack = new Attack();
+const mera = new Mera();
+const baikiruto = new Baikiruto();
+const herb = new Herb();
+
+const action = {
+  type: "select",
+  name: "command",
+  message: "どうする？",
+  choices: ["たたかう", "まほう", "どうぐ", "にげる"],
+};
+
+const magic = {
+  type: "select",
+  name: "magics",
+  message: "どの魔法を使う?",
+  choices: ["メラ", "バイキルト", "もどる"],
+};
+
+const belongings = {
+  type: "select",
+  name: "tools",
+  message: "使う道具は?",
+  choices: ["やくそう", "もどる"],
+};
+
+function slimeAction() {
+  // 敵は75%の確率で通常攻撃,25%の確率で魔法を使用する処理。
+  let random = Math.floor(Math.random() * 100);
+  if (random >= 25) {
+    attack.outputMessage(hero, slime);
+    slime.attack(hero);
+  } else {
+    if (slime.magicPower >= mera.necessaryPower) {
+      mera.outputMessage1(slime, hero);
+      mera.attack(hero);
+      mera.consumeMagicPower(slime);
+    } else {
+      mera.outputMessage2(slime);
+    }
+  }
+}
+
+new Battle().startBattle();
