@@ -1,6 +1,6 @@
 {
   "name": "rpg-combat-reproduction",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Reproduction of RPG(Role Playing Games) battle screen on the command line",
   "main": "rpg-combat-reproduction",
   "bin": {
@@ -26,7 +26,7 @@
     "eslint": "^8.35.0"
   },
   "dependencies": {
-    "rpg-combat-reproduction": "^1.0.11",
+    "rpg-combat-reproduction": "^1.0.12",
     "enquirer": "^2.3.6"
   }
 }
