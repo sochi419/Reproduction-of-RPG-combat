@@ -36,22 +36,10 @@ class Action {
         if (answer.command == "まほう") {
           const answer = await Enquirer.prompt(magic);
           if (answer.magics == "メラ") {
-            if (hero.magicPower >= mera.necessaryPower) {
-              mera.outputMessage1(hero, slime);
-              mera.attack(slime);
-              mera.consumeMagicPower(hero);
-            } else {
-              mera.outputMessage2(hero);
-            }
+            hero.useMera(slime, mera.damage, mera.necessaryPower);
           }
           if (answer.magics == "バイキルト") {
-            if (hero.magicPower >= baikiruto.necessaryPower) {
-              baikiruto.outputMessage1(hero);
-              baikiruto.upAttackPower(hero);
-              baikiruto.consumeMagicPower(hero);
-            } else {
-              baikiruto.outputMessage2(hero);
-            }
+            hero.useBaikiruto(baikiruto.necessaryPower, baikiruto.attackRate);
           }
           if (answer.magics == "もどる") {
             continue;
@@ -103,10 +91,35 @@ class Hero {
     this.health = 50;
     this.attackPower = 5;
     this.magicPower = 10;
+    this.magics = [new Mera(), new Baikiruto()];
   }
 
   attack(subject) {
     subject.health = subject.health - this.attackPower;
+  }
+
+  useMera(subject, meraDamage, meraNecessaryPower) {
+    if (this.magicPower >= meraNecessaryPower) {
+      subject.health = subject.health - meraDamage;
+      this.magicPower = this.magicPower - meraNecessaryPower;
+      console.log(
+        `${this.name}はメラを唱えた! ${subject.name}に${meraDamage}のダメージ!`
+      );
+    } else {
+      console.log(`${this.name}はメラを唱えた! しかし、MPが足りなかった!`);
+    }
+  }
+
+  useBaikiruto(baikirutoNecessaryPower, baikirutoRate) {
+    if (this.magicPower >= baikirutoNecessaryPower) {
+      this.attackPower = this.attackPower * baikirutoRate;
+      this.magicPower = this.magicPower - baikirutoNecessaryPower;
+      console.log(`${this.name}はバイキルトを唱えた! 攻撃力が上がった!`);
+    } else {
+      console.log(
+        `${this.name}はバイキルトを唱えた! しかし、MPが足りなかった!`
+      );
+    }
   }
 }
 
@@ -133,6 +146,7 @@ class Attack {
 
 class Mera {
   constructor() {
+    this.name = "メラ";
     this.damage = 20;
     this.necessaryPower = 5;
   }
@@ -154,6 +168,7 @@ class Mera {
 
 class Baikiruto {
   constructor() {
+    this.name = "バイキルト";
     this.attackRate = 1.5;
     this.necessaryPower = 10;
   }
@@ -221,11 +236,16 @@ const action = {
   choices: ["たたかう", "まほう", "どうぐ", "にげる"],
 };
 
+const magicCommand = hero.magics.map(function (obj) {
+  return obj.name;
+});
+magicCommand.push("もどる");
+
 const magic = {
   type: "select",
   name: "magics",
   message: "どの魔法を使う?",
-  choices: ["メラ", "バイキルト", "もどる"],
+  choices: magicCommand,
 };
 
 const belongings = {
