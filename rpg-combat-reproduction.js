@@ -36,10 +36,10 @@ class Action {
         if (answer.command == "まほう") {
           const answer = await Enquirer.prompt(magic);
           if (answer.magics == "メラ") {
-            hero.useMera(slime, mera.damage, mera.necessaryPower);
+            hero.useMera(slime);
           }
           if (answer.magics == "バイキルト") {
-            hero.useBaikiruto(baikiruto.necessaryPower, baikiruto.attackRate);
+            hero.useBaikiruto();
           }
           if (answer.magics == "もどる") {
             continue;
@@ -98,22 +98,22 @@ class Hero {
     subject.health = subject.health - this.attackPower;
   }
 
-  useMera(subject, meraDamage, meraNecessaryPower) {
-    if (this.magicPower >= meraNecessaryPower) {
-      subject.health = subject.health - meraDamage;
-      this.magicPower = this.magicPower - meraNecessaryPower;
+  useMera(subject) {
+    if (this.magicPower >= this.magics[0].necessaryPower) {
+      subject.health = subject.health - this.magics[0].damage;
+      this.magicPower = this.magicPower - this.magics[0].necessaryPower;
       console.log(
-        `${this.name}はメラを唱えた! ${subject.name}に${meraDamage}のダメージ!`
+        `${this.name}はメラを唱えた! ${subject.name}に${this.magics[0].damage}のダメージ!`
       );
     } else {
       console.log(`${this.name}はメラを唱えた! しかし、MPが足りなかった!`);
     }
   }
 
-  useBaikiruto(baikirutoNecessaryPower, baikirutoRate) {
-    if (this.magicPower >= baikirutoNecessaryPower) {
-      this.attackPower = this.attackPower * baikirutoRate;
-      this.magicPower = this.magicPower - baikirutoNecessaryPower;
+  useBaikiruto() {
+    if (this.magicPower >= this.magics[1].necessaryPower) {
+      this.attackPower = this.attackPower * this.magics[1].attackRate;
+      this.magicPower = this.magicPower - this.magics[1].necessaryPower;
       console.log(`${this.name}はバイキルトを唱えた! 攻撃力が上がった!`);
     } else {
       console.log(
@@ -129,10 +129,23 @@ class Slime {
     this.health = 70;
     this.attackPower = 5;
     this.magicPower = 10;
+    this.magics = [new Mera()];
   }
 
   attack(subject) {
     subject.health = subject.health - this.attackPower;
+  }
+
+  useMera(subject) {
+    if (this.magicPower >= this.magics[0].necessaryPower) {
+      subject.health = subject.health - this.magics[0].damage;
+      this.magicPower = this.magicPower - this.magics[0].necessaryPower;
+      console.log(
+        `${this.name}はメラを唱えた! ${subject.name}に${this.magics[0].damage}のダメージ!`
+      );
+    } else {
+      console.log(`${this.name}はメラを唱えた! しかし、MPが足りなかった!`);
+    }
   }
 }
 
@@ -150,20 +163,6 @@ class Mera {
     this.damage = 20;
     this.necessaryPower = 5;
   }
-  attack(subject) {
-    subject.health = subject.health - this.damage;
-  }
-  consumeMagicPower(user) {
-    user.magicPower = user.magicPower - this.necessaryPower;
-  }
-  outputMessage1(user1, user2) {
-    console.log(
-      `${user1.name}はメラを唱えた! ${user2.name}に${this.damage}のダメージ!`
-    );
-  }
-  outputMessage2(user) {
-    console.log(`${user.name}はメラを唱えた! しかし、MPが足りなかった!`);
-  }
 }
 
 class Baikiruto {
@@ -171,22 +170,6 @@ class Baikiruto {
     this.name = "バイキルト";
     this.attackRate = 1.5;
     this.necessaryPower = 10;
-  }
-
-  upAttackPower(user) {
-    user.attackPower = user.attackPower * this.attackRate;
-  }
-
-  consumeMagicPower(user) {
-    user.magicPower = user.magicPower - this.necessaryPower;
-  }
-
-  outputMessage1(user) {
-    console.log(`${user.name}はバイキルトを唱えた! 攻撃力が上がった!`);
-  }
-
-  outputMessage2(user) {
-    console.log(`${user.name}はバイキルトを唱えた! しかし、MPが足りなかった!`);
   }
 }
 
@@ -225,8 +208,6 @@ class Herb {
 const hero = new Hero();
 const slime = new Slime();
 const attack = new Attack();
-const mera = new Mera();
-const baikiruto = new Baikiruto();
 const herb = new Herb();
 
 const action = {
@@ -256,19 +237,13 @@ const belongings = {
 };
 
 function slimeAction() {
-  // 敵は75%の確率で通常攻撃,25%の確率で魔法を使用する処理。
+  // 敵は75%の確率で通常攻撃,25%の確率でメラを使用する処理。
   let random = Math.floor(Math.random() * 100);
   if (random >= 25) {
     attack.outputMessage(hero, slime);
     slime.attack(hero);
   } else {
-    if (slime.magicPower >= mera.necessaryPower) {
-      mera.outputMessage1(slime, hero);
-      mera.attack(hero);
-      mera.consumeMagicPower(slime);
-    } else {
-      mera.outputMessage2(slime);
-    }
+    slime.useMera(hero);
   }
 }
 
