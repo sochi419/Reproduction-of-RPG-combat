@@ -49,14 +49,7 @@ class Action {
         if (answer.command == "どうぐ") {
           const answer = await Enquirer.prompt(belongings);
           if (answer.tools == "やくそう") {
-            if (herb.remaining >= 1) {
-              herb.outputMessage1();
-              herb.healUser(hero);
-              herb.consumeHerb(herb);
-              herb.outputMessage3();
-            } else {
-              herb.outputMessage2();
-            }
+            herb.healUser(hero);
           }
           if (answer.tools == "もどる") {
             continue;
@@ -92,6 +85,7 @@ class Hero {
     this.attackPower = 5;
     this.magicPower = 10;
     this.magics = [new Mera(), new Baikiruto()];
+    this.herbRemaining = 2;
   }
 
   attack(subject) {
@@ -177,29 +171,19 @@ class Herb {
   constructor() {
     this.name = "薬草";
     this.healingPower = 20;
-    this.remaining = 2;
   }
 
   healUser(user) {
-    user.health = user.health + this.healingPower;
-  }
-
-  consumeHerb(subject) {
-    subject.remaining = subject.remaining - 1;
-  }
-
-  outputMessage1() {
-    console.log(`${this.name}を使った! HPが${this.healingPower}回復した!`);
-  }
-
-  outputMessage2() {
-    console.log(`${this.name}は残っていない!`);
-  }
-
-  outputMessage3() {
+    if (user.herbRemaining > 0) {
+      user.health = user.health + this.healingPower;
+      user.herbRemaining = user.herbRemaining - 1;
+      console.log(`${this.name}を使った! HPが${this.healingPower}回復した!`);
+    } else {
+      console.log(`${this.name}は残っていない!`);
+    }
     console.log(`__________________________________________`);
     console.log(
-      `HP:${hero.health}   |   MP:${hero.magicPower}   |    やくそう残り:${herb.remaining}`
+      `HP:${user.health}   |   MP:${user.magicPower}   |    やくそう残り:${user.herbRemaining}`
     );
     console.log(`------------------------------------------`);
   }
