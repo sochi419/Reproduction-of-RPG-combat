@@ -5,7 +5,7 @@ const Enquirer = require("enquirer");
 class Battle {
   startBattle() {
     this.outputStartMessage();
-    new Action().selectAction();
+    new Action(hero, slime).selectAction();
   }
 
   outputStartMessage() {
@@ -23,23 +23,27 @@ class Battle {
 }
 
 class Action {
+  constructor(player, enemy) {
+    this.player = player;
+    this.enemy = enemy;
+  }
   selectAction() {
     (async () => {
-      for (; slime.health >= 0 && hero.health >= 0; ) {
+      for (; this.enemy.health >= 0 && this.player.health >= 0; ) {
         const answer = await Enquirer.prompt(action);
 
         if (answer.command == "たたかう") {
-          attack.outputMessage(slime, hero);
-          hero.attack(slime);
+          attack.outputMessage(this.enemy, this.player);
+          this.player.attack(this.enemy);
         }
 
         if (answer.command == "まほう") {
           const answer = await Enquirer.prompt(magic);
           if (answer.magics == "メラ") {
-            hero.useMera(slime);
+            this.player.useMera(this.enemy);
           }
           if (answer.magics == "バイキルト") {
-            hero.useBaikiruto();
+            this.player.useBaikiruto();
           }
           if (answer.magics == "もどる") {
             continue;
@@ -49,7 +53,7 @@ class Action {
         if (answer.command == "どうぐ") {
           const answer = await Enquirer.prompt(belongings);
           if (answer.tools == "やくそう") {
-            herb.healUser(hero);
+            herb.healUser(this.player);
           }
           if (answer.tools == "もどる") {
             continue;
@@ -61,15 +65,15 @@ class Action {
           return false;
         }
 
-        if (slime.health <= 0) {
-          console.log(`${slime.name}を倒した!`);
+        if (this.enemy.health <= 0) {
+          console.log(`${this.enemy.name}を倒した!`);
           return false;
         }
 
         slimeAction();
         new Battle().outputRemaingPower();
 
-        if (hero.health <= 0) {
+        if (this.player.health <= 0) {
           console.log("ゲームオーバー!");
           return false;
         }
