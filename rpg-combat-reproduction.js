@@ -32,35 +32,35 @@ class Action {
       for (; this.enemy.health >= 0 && this.player.health >= 0; ) {
         const answer = await Enquirer.prompt(action);
 
-        if (answer.command == "たたかう") {
+        if (answer.command === "たたかう") {
           attack.outputMessage(this.enemy, this.player);
           this.player.attack(this.enemy);
         }
 
-        if (answer.command == "まほう") {
+        if (answer.command === "まほう") {
           const answer = await Enquirer.prompt(magic);
           if (answer.magics == "メラ") {
             this.player.useMera(this.enemy);
           }
-          if (answer.magics == "バイキルト") {
+          if (answer.magics === "バイキルト") {
             this.player.useBaikiruto();
           }
-          if (answer.magics == "もどる") {
+          if (answer.magics === "もどる") {
             continue;
           }
         }
 
-        if (answer.command == "どうぐ") {
+        if (answer.command === "どうぐ") {
           const answer = await Enquirer.prompt(belongings);
-          if (answer.tools == "やくそう") {
+          if (answer.tools === "やくそう") {
             herb.healUser(this.player);
           }
-          if (answer.tools == "もどる") {
+          if (answer.tools === "もどる") {
             continue;
           }
         }
 
-        if (answer.command == "にげる") {
+        if (answer.command === "にげる") {
           console.log(`にげだした!!`);
           return false;
         }
@@ -97,27 +97,11 @@ class Hero {
   }
 
   useMera(subject) {
-    if (this.magicPower >= this.magics[0].necessaryPower) {
-      subject.health = subject.health - this.magics[0].damage;
-      this.magicPower = this.magicPower - this.magics[0].necessaryPower;
-      console.log(
-        `${this.name}はメラを唱えた! ${subject.name}に${this.magics[0].damage}のダメージ!`
-      );
-    } else {
-      console.log(`${this.name}はメラを唱えた! しかし、MPが足りなかった!`);
-    }
+    this.magics[0].use(hero, subject);
   }
 
   useBaikiruto() {
-    if (this.magicPower >= this.magics[1].necessaryPower) {
-      this.attackPower = this.attackPower * this.magics[1].attackRate;
-      this.magicPower = this.magicPower - this.magics[1].necessaryPower;
-      console.log(`${this.name}はバイキルトを唱えた! 攻撃力が上がった!`);
-    } else {
-      console.log(
-        `${this.name}はバイキルトを唱えた! しかし、MPが足りなかった!`
-      );
-    }
+    this.magics[1].use(hero);
   }
 }
 
@@ -135,15 +119,7 @@ class Slime {
   }
 
   useMera(subject) {
-    if (this.magicPower >= this.magics[0].necessaryPower) {
-      subject.health = subject.health - this.magics[0].damage;
-      this.magicPower = this.magicPower - this.magics[0].necessaryPower;
-      console.log(
-        `${this.name}はメラを唱えた! ${subject.name}に${this.magics[0].damage}のダメージ!`
-      );
-    } else {
-      console.log(`${this.name}はメラを唱えた! しかし、MPが足りなかった!`);
-    }
+    this.magics[0].use(slime, subject);
   }
 }
 
@@ -161,6 +137,18 @@ class Mera {
     this.damage = 20;
     this.necessaryPower = 5;
   }
+
+  use(user, subject) {
+    if (user.magicPower >= this.necessaryPower) {
+      subject.health = subject.health - this.damage;
+      user.magicPower = user.magicPower - this.necessaryPower;
+      console.log(
+        `${user.name}はメラを唱えた! ${subject.name}に${this.damage}のダメージ!`
+      );
+    } else {
+      console.log(`${user.name}はメラを唱えた! しかし、MPが足りなかった!`);
+    }
+  }
 }
 
 class Baikiruto {
@@ -168,6 +156,18 @@ class Baikiruto {
     this.name = "バイキルト";
     this.attackRate = 1.5;
     this.necessaryPower = 10;
+  }
+
+  use(user) {
+    if (user.magicPower >= this.necessaryPower) {
+      user.attackPower = user.attackPower * this.attackRate;
+      user.magicPower = user.magicPower - this.necessaryPower;
+      console.log(`${user.name}はバイキルトを唱えた! 攻撃力が上がった!`);
+    } else {
+      console.log(
+        `${user.name}はバイキルトを唱えた! しかし、MPが足りなかった!`
+      );
+    }
   }
 }
 
